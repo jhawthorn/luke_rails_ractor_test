@@ -8,3 +8,15 @@
 
   <%= button_to "Destroy this post", @post, method: :delete %>
 </div>
+
+<h2><%= pluralize(@comments.size, "Comment") %></h2>
+
+<div id="comments">
+  <%# Rendered in a loop: collection rendering isn't Ractor-safe in this Rails branch yet. %>
+  <% @comments.each do |comment| %>
+    <%= render "comments/comment", comment: comment %>
+  <% end %>
+</div>
+
+<h3>Add a comment</h3>
+<%= render "comments/form", post: @post, comment: @comment || Comment.new %>

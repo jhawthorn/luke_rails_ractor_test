@@ -9,6 +9,7 @@
     <%= render post %>
     <p>
       <%= link_to "Show this post", post %>
+      (<%= pluralize(post.comments_count, "comment") %>)
     </p>
   <% end %>
 </div>

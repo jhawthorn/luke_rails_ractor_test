@@ -3,16 +3,13 @@ class PostsController < ApplicationController
 
   # GET /posts or /posts.json
   def index
-    @posts = Post.all
+    @posts = Post.recent.limit(50)
   end
 
   # GET /posts/1 or /posts/1.json
   def show
-  end
-
-  # GET /posts/new
-  def new
-    @post = Post.new
+    @comments = Comment.where(post_id: @post.id).order(:id)
+    @comment = Comment.new
   end
 
   # GET /posts/1/edit

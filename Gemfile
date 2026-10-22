@@ -1,13 +1,16 @@
 source "https://rubygems.org"
 
+gem "herb", github: "marcoroth/herb"
+gem "nokogiri", force_ruby_platform: true
+gem "ffi", force_ruby_platform: true
 # Use specific branch of Rails
 gem "rails", path: "../rails"
 # The modern asset pipeline for Rails [https://github.com/rails/propshaft]
 gem "propshaft"
 # Use sqlite3 as the database for Active Record
-gem "sqlite3", ">= 2.1"
+gem "sqlite3", ">= 2.1", force_ruby_platform: true
 # Ractor-based web server
-gem "cougar", github: "jhawthorn/cougar"
+gem "cougar", path: "../cougar"
 # Rack main is required for rack/ractorize
 gem "rack", github: "rack/rack", branch: "main"
 # Use JavaScript with ESM import maps [https://github.com/rails/importmap-rails]

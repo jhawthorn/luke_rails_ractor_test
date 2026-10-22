@@ -18,12 +18,18 @@
     <link rel="icon" href="/icon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="/icon.png">
 
-    <%# Includes all stylesheet files in app/assets/stylesheets %>
-    <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
-    <%= javascript_importmap_tags %>
+    <%# Propshaft isn't Ractor-safe yet, so styles are inline and there is no JS. %>
+    <style>
+      body { font-family: system-ui, sans-serif; max-width: 42rem; margin: 2rem auto; padding: 0 1rem; line-height: 1.5; }
+      a { color: #2563eb; }
+      input[type=text], textarea { width: 100%; padding: .4rem; box-sizing: border-box; }
+      input[type=submit] { padding: .4rem 1rem; }
+      #notice { color: #166534; }
+    </style>
   </head>
 
   <body>
+    <p><a href="/">My Blog</a></p>
     <%= yield %>
   </body>
 </html>
