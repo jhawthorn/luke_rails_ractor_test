@@ -1,0 +1,9 @@
+<div id="<%= dom_id comment %>">
+  <p>
+    <strong><%= comment.author %></strong>
+    <small><%= time_ago_in_words(comment.created_at) %> ago</small>
+  </p>
+  <%# Not simple_format: its sanitizer uses class variables that aren't Ractor-safe yet. %>
+  <p><%= comment.body %></p>
+  <%= button_to "Remove", post_comment_path(comment.post_id, comment), method: :delete %>
+</div>

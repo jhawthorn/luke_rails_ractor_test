@@ -1,0 +1,21 @@
+<%= form_with model: [ post, comment ] do |form| %>
+  <% if comment.errors.any? %>
+    <div style="color: red">
+      <ul>
+        <% comment.errors.each do |error| %>
+          <li><%= error.full_message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <p>
+    <%= form.label :author %><br>
+    <%= form.text_field :author %>
+  </p>
+  <p>
+    <%= form.label :body %><br>
+    <%= form.text_area :body, rows: 3 %>
+  </p>
+  <%= form.submit "Add comment" %>
+<% end %>
