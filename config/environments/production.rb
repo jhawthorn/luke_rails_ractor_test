@@ -1,6 +1,9 @@
 require "active_support/core_ext/integer/time"
 
 Rails.application.configure do
+  ActiveSupport::Ractors.unshareable_proc_action = :warn
+  config.public_file_server.enabled = false
+  config.action_cable.mount_path = nil
   # Settings specified here will take precedence over those in config/application.rb.
 
   # Code is not reloaded between requests.
@@ -39,7 +42,7 @@ Rails.application.configure do
 
   # Log to STDOUT with the current request id as a default log tag.
   config.log_tags = [ :request_id ]
-  config.logger   = ActiveSupport::TaggedLogging.logger(STDOUT)
+  config.logger = ActiveSupport::Ractors::Logger.new
 
   # Change to "debug" to log everything (including potentially personally-identifiable information!).
   config.log_level = ENV.fetch("RAILS_LOG_LEVEL", "info")
@@ -51,11 +54,10 @@ Rails.application.configure do
   config.active_support.report_deprecations = false
 
   # Replace the default file-based cache store with a more robust alternative.
-  config.cache_store = :solid_cache_store
+  config.cache_store = :null_store
 
   # Replace the default in-process and non-durable queuing backend for Active Job.
-  config.active_job.queue_adapter = :solid_queue
-  config.solid_queue.connects_to = { database: { writing: :queue } }
+  config.active_job.queue_adapter = :inline
 
   # Ignore bad email addresses and do not raise email delivery errors.
   # Set this to true and configure the email server for immediate delivery to raise delivery errors.

@@ -1,2 +1,4 @@
 #!/usr/bin/env ruby
-exec "./bin/rails", "server", *ARGV
+ENV["RAILS_ENV"] ||= "production"
+ENV["SECRET_KEY_BASE_DUMMY"] ||= "1"
+exec "bundle", "exec", "cougar", "-p", ENV.fetch("PORT", "3000"), *ARGV

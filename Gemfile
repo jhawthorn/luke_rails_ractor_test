@@ -1,13 +1,15 @@
 source "https://rubygems.org"
 
 # Use specific branch of Rails
-gem "rails", github: "rails/rails", branch: "main"
+gem "rails", path: "../rails"
 # The modern asset pipeline for Rails [https://github.com/rails/propshaft]
 gem "propshaft"
 # Use sqlite3 as the database for Active Record
 gem "sqlite3", ">= 2.1"
-# Use the Puma web server [https://github.com/puma/puma]
-gem "puma", ">= 7.1"
+# Ractor-based web server
+gem "cougar", github: "jhawthorn/cougar"
+# Rack main is required for rack/ractorize
+gem "rack", github: "rack/rack", branch: "main"
 # Use JavaScript with ESM import maps [https://github.com/rails/importmap-rails]
 gem "importmap-rails"
 # Hotwire's SPA-like page accelerator [https://turbo.hotwired.dev]

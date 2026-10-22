@@ -2,5 +2,6 @@
 
 require_relative "config/environment"
 
+Rails.application.ractorize!
+
 run Rails.app
-Rails.application.load_server

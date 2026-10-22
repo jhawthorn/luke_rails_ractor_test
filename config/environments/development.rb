@@ -4,10 +4,10 @@ Rails.application.configure do
   # Settings specified here will take precedence over those in config/application.rb.
 
   # Make code changes take effect immediately without server restart.
-  config.enable_reloading = true
+  config.enable_reloading = false
 
   # Do not eager load code on boot.
-  config.eager_load = false
+  config.eager_load = true
 
   # Show full error reports.
   config.consider_all_requests_local = true
