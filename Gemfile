@@ -4,7 +4,7 @@ gem "herb", github: "marcoroth/herb"
 gem "nokogiri", force_ruby_platform: true
 gem "ffi", force_ruby_platform: true
 # Use specific branch of Rails
-gem "rails", path: "../rails"
+gem "rails", path: "../rails_ractorized"
 # The modern asset pipeline for Rails [https://github.com/rails/propshaft]
 gem "propshaft"
 # Use sqlite3 as the database for Active Record
