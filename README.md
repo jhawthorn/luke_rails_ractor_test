@@ -1,24 +1,16 @@
-# README
+# Rails Ractor Test
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+### Load Testing / Benchmarking
 
-Things you may want to cover:
+Example of using `oha` for http load testing:
 
-* Ruby version
+Start server:
 
-* System dependencies
+  RAILS_MAX_THREADS=16 RUBY_MAX_CPU=12 RAILS_LOG_TO_STDOUT=true RAILS_ENV=production ruby -d -r bundler/setup -S cougar -p 3030 -w 12
 
-* Configuration
+  oha -c 12 -z 30s http://localhost:3030/
 
-* Database creation
 
-* Database initialization
+### Profiling with samply
 
-* How to run the test suite
-
-* Services (job queues, cache servers, search engines, etc.)
-
-* Deployment instructions
-
-* ...
+  RAILS_MAX_THREADS=16 RUBY_MAX_CPU=12 RAILS_LOG_TO_STDOUT=true RAILS_ENV=production samply record --save-only ruby -d -r bundler/setup -S cougar -p 3030 -w 12
