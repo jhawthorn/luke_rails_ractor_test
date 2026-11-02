@@ -18,6 +18,14 @@ GIT
   specs:
     rack (3.2.0)
 
+GIT
+  remote: https://github.com/sparklemotion/sqlite3-ruby.git
+  revision: c24e5a9f421a661ec89f367fee9a60f9e221da15
+  ref: c24e5a9f421a661ec89f367fee9a60f9e221da15
+  specs:
+    sqlite3 (2.10.2)
+      mini_portile2 (~> 2.8.0)
+
 PATH
   remote: ../cougar
   specs:
@@ -346,8 +354,6 @@ GEM
       fugit (~> 1.11)
       railties (>= 7.1)
       thor (>= 1.3.1)
-    sqlite3 (2.10.1)
-      mini_portile2 (~> 2.8.0)
     sshkit (1.25.1)
       base64
       logger
@@ -423,7 +429,7 @@ DEPENDENCIES
   solid_cable
   solid_cache
   solid_queue
-  sqlite3 (>= 2.1)
+  sqlite3!
   stimulus-rails
   thruster
   turbo-rails
@@ -546,7 +552,7 @@ CHECKSUMS
   solid_cable (4.1.0) sha256=828e3d509207b82b4f05f4e9c85f696994710679b52d511aa7f97ebd212d3226
   solid_cache (1.0.10) sha256=bc05a2fb3ac78a6f43cbb5946679cf9db67dd30d22939ededc385cb93e120d41
   solid_queue (1.7.0) sha256=6566b70b801d1c317c81bba7bcdd5677c019afac584a30374b4164002ca356d3
-  sqlite3 (2.10.1) sha256=7ae52c91f5b766882cf44d2dbd26d2dbbb841606f0ec78df3be019bd07b13ff4
+  sqlite3 (2.10.2)
   sshkit (1.25.1) sha256=be3f10b9d6eb0b44d5eaba3f7cbe41bc6bb894bce4339688ac20124391455b78
   stimulus-rails (1.3.4) sha256=765676ffa1f33af64ce026d26b48e8ffb2e0b94e0f50e9119e11d6107d67cb06
   stringio (3.2.0) sha256=c37cb2e58b4ffbd33fe5cd948c05934af997b36e0b6ca6fdf43afa234cf222e1

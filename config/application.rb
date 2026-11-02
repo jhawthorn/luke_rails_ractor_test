@@ -14,6 +14,11 @@ module RailsRactorTest
     # load_defaults 8.2 switches to Herb; stay on Erubi.
     config.action_view.erb_implementation = :erubi
 
+    # Which web server this process is booting under; set by bin/server.
+    # Drives the Ractor-only bits of the config: the shareable logger in
+    # config/environments/production.rb and ractorize! in config.ru.
+    config.x.server = ENV.fetch("RAILS_SERVER", "cougar").to_sym
+
     # Please, add to the `ignore` list any other `lib` subdirectories that do
     # not contain `.rb` files, or that should not be reloaded or eager loaded.
     # Common ones are `templates`, `generators`, or `middleware`, for example.

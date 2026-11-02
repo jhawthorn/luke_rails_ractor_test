@@ -42,7 +42,17 @@ Rails.application.configure do
 
   # Log to STDOUT with the current request id as a default log tag.
   config.log_tags = [ :request_id ]
-  config.logger = ActiveSupport::Ractors::Logger.new(ENV["RAILS_LOG_TO_STDOUT"].present? ? STDOUT : nil)
+  log_device = ENV["RAILS_LOG_TO_STDOUT"] == "true" ? STDOUT : nil
+  config.logger =
+    if config.x.server == :cougar
+      ActiveSupport::Ractors::Logger.new(log_device)
+    else
+      # Ractors::Logger drains its port from a consumer thread, and threads do
+      # not survive fork: under a preloading forking server every worker would
+      # inherit a port with no consumer and block forever on the first flush.
+      # Forking servers get the stock logger, which is what they'd use anyway.
+      ActiveSupport::Logger.new(log_device)
+    end
 
   # Change to "debug" to log everything (including potentially personally-identifiable information!).
   config.log_level = ENV.fetch("RAILS_LOG_LEVEL", "debug")
