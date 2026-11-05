@@ -32,9 +32,17 @@ that logger's consumer thread as a dead port and hang on its first flush.
 
 ### Running on Unicorn
 
-Unicorn with 10 workers:
+Unicorn with 10 workers. Note that you will run out of connections when load testing this way, because
+the client closes and open a new TCP connection for each request because of the way Unicorn behaves (it
+sends the `Connection: close` HTTP header. Use unicorn with nginx for real benchmarking.
 
   RAILS_SERVER=unicorn WORKERS=10 bin/server
+
+### Running on Unicorn with nginx as proxy
+
+Unicorn with 10 workers, nginx with 2 workers. Nginx listens on PORT, unicorn on a UDS:
+
+  RAILS_SERVER=unicorn-nginx WORKERS=10 bin/server
 
 ### Running on Cougar
 
@@ -46,12 +54,11 @@ Cougar with ractors:
 
   RAILS_SERVER=cougar WORKERS=10 bin/server
 
-
 ### Sending requests
 
 Send requests with 10 connections for 30s straight.
 
-  oha -c 10 -z 30s http://127.0.0.1:3030/
+  oha -c 10 -z 30s http://localhost:3030/
 
 ### Starting cougar directly
 
