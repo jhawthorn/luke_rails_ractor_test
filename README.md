@@ -60,6 +60,36 @@ Send requests with 10 connections for 30s straight.
 
   oha -c 10 -z 30s http://localhost:3030/
 
+`/` is the home page (recent posts, featured posts, sidebar), not the posts
+index. To spread the load over every page, build a URL mix from the database
+and let oha pick from it:
+
+  scripts/make_urls.sh http://localhost:3030 > urls.txt
+  oha -c 10 -z 30s --urls-from-file urls.txt
+
+### What a request does
+
+The blog has authors, tags, posts with Markdown bodies, rated comments and a
+page_views table. Seed it with `RESEED=1 bin/rails db:seed` (300 posts and
+about 4500 comments by default; set `POSTS` and `COMMENTS` to change that).
+
+| Page | Work |
+| ---- | ---- |
+| `/`, `/posts`, `/tags/:slug` | listing queries, post cards in a fragment cache (file store) |
+| `/posts/:id` | Markdown render (`lib/blog/markdown.rb`), Prism-based Ruby highlighting, readability stats, related posts, a `page_views` insert and a counter update |
+| `/authors`, `/authors/:handle` | aggregate queries, top terms over all of the author's posts |
+| `/search?q=` | LIKE queries, ranking and snippets in Ruby |
+| `/stats` | percentiles, histograms, group-by queries, `Dir.glob` + `File.size` |
+| `/pages/:name` | reads and renders `content/pages/*.md` from disk every time |
+| `/feed` | Atom via Builder |
+| `/posts.json`, `/posts.csv`, `/api/...` | jbuilder, CSV, `JSON.generate` with a SHA256 ETag |
+
+Every HTML page also renders a sidebar from `Rails.cache` (5 s TTL) and reads
+a random line from `content/quotes.txt`.
+
+Set `YJIT=0` to boot without YJIT. `load_defaults` enables it even when ruby
+was started without `--yjit`.
+
 ### Starting cougar directly
 
   RAILS_MAX_THREADS=16 RUBY_MAX_CPU=10 RAILS_LOG_TO_STDOUT=true RAILS_ENV=production ruby --yjit -r bundler/setup -S cougar -p 3030 -w 10

@@ -1,4 +1,4 @@
-<%= form_with model: [ post, comment ] do |form| %>
+<%= form_with model: [ post, comment ], class: "comment-form" do |form| %>
   <% if comment.errors.any? %>
     <div style="color: red">
       <ul>
@@ -12,6 +12,10 @@
   <p>
     <%= form.label :author %><br>
     <%= form.text_field :author %>
+  </p>
+  <p>
+    <%= form.label :rating %>
+    <%= form.select :rating, (1..5).map { [ "#{it} ★", it ] }, include_blank: "No rating" %>
   </p>
   <p>
     <%= form.label :body %><br>

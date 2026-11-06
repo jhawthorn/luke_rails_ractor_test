@@ -1,15 +1,27 @@
 class PostsController < ApplicationController
   before_action :set_post, only: %i[ show edit update destroy ]
 
-  # GET /posts or /posts.json
+  # GET /posts, /posts.json or /posts.csv
   def index
-    @posts = Post.recent.limit(50)
+    respond_to do |format|
+      format.html { @posts = decorate(paginate(Post.published.recent)) }
+      format.json { @posts = Post.published.recent.limit(50).to_a }
+      format.csv do
+        posts = decorate(Post.published.recent.limit(100).to_a)
+        send_data PostsExport.new(posts).to_csv, filename: "posts-#{Date.current.iso8601}.csv", type: :csv
+      end
+    end
   end
 
   # GET /posts/1 or /posts/1.json
   def show
-    @comments = Comment.where(post_id: @post.id).order(:id)
+    @comments = Comment.where(post_id: @post.id).order(:id).to_a
     @comment = Comment.new
+    @ratings = Rating.new(@comments.filter_map(&:rating))
+    @related = @post.related
+    @previous, @next = @post.previous, @post.next
+    decorate([ @post ])
+    record_view(@post.id)
   end
 
   # GET /posts/new

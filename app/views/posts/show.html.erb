@@ -1,6 +1,33 @@
-<p style="color: green"><%= notice %></p>
+<% content_for :title, @post.title %>
+<% content_for :description, @post.settings[:summary] || @post.excerpt(150) %>
 
-<%= render @post %>
+<%= render "posts/post", post: @post %>
+
+<% stats = @post.stats %>
+<section class="grid">
+  <div class="stat"><strong><%= number_with_delimiter(stats.words) %></strong> words</div>
+  <div class="stat"><strong><%= stats.reading_ease %></strong> reading ease (<%= reading_ease_label(stats.reading_ease) %>)</div>
+  <div class="stat"><strong><%= number_with_delimiter(@post.views_count + 1) %></strong> views</div>
+  <div class="stat"><strong><%= @ratings.average || "–" %></strong> <%= @ratings.stars %> (<%= pluralize(@ratings.count, "rating") %>)</div>
+</section>
+<p class="muted">Frequent terms: <%= stats.top_terms.map { |w, n| "#{w} (#{n})" }.to_sentence %>.
+  <% if @post.series %>Part of the <em><%= @post.series %></em> series.<% end %>
+  License: <%= @post.settings[:license] || "unknown" %>.</p>
+
+<nav class="muted">
+  <%= link_to "← #{@previous.title.truncate(40)}", @previous if @previous %>
+  <%= " | " if @previous && @next %>
+  <%= link_to "#{@next.title.truncate(40)} →", @next if @next %>
+</nav>
+
+<% if @related.any? %>
+  <h3>Related posts</h3>
+  <ul>
+    <% @related.each do |post, shared| %>
+      <li><%= link_to post.title, post %> <span class="muted">(<%= pluralize(shared, "shared tag") %>)</span></li>
+    <% end %>
+  </ul>
+<% end %>
 
 <div>
   <%= link_to "Edit this post", edit_post_path(@post) %> |
@@ -10,6 +37,13 @@
 </div>
 
 <h2><%= pluralize(@comments.size, "Comment") %></h2>
+
+<% if @ratings.any? %>
+  <% max = @ratings.distribution.values.max %>
+  <% @ratings.distribution.each do |stars, n| %>
+    <%= bar(n, max, label: "#{stars}★ #{n}") %>
+  <% end %>
+<% end %>
 
 <div id="comments">
   <%# Rendered in a loop: collection rendering isn't Ractor-safe in this Rails branch yet. %>

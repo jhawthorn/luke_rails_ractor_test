@@ -14,6 +14,10 @@ module RailsRactorTest
     # load_defaults 8.2 switches to Herb; stay on Erubi.
     config.action_view.erb_implementation = :erubi
 
+    # load_defaults turns YJIT on during boot even when ruby was started
+    # without --yjit; YJIT=0 keeps it off.
+    config.yjit = false if ENV["YJIT"] == "0"
+
     # Which web server this process is booting under; set by bin/server.
     # Drives the Ractor-only bits of the config: the shareable logger in
     # config/environments/production.rb and ractorize! in config.ru.

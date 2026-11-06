@@ -3,7 +3,8 @@ class Comment < ApplicationRecord
   # so the post is referenced by post_id and the counter cache is kept by hand.
   validates :post_id, presence: true
   validates :author, presence: true
-  validates :body, presence: true
+  validates :body, presence: true, length: { maximum: 2000 }
+  validates :rating, inclusion: { in: 1..5 }, allow_nil: true
 
   # Keeps posts.comments_count current so the index needs no count query.
   after_create { Post.increment_counter(:comments_count, post_id) }

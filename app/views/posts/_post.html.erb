@@ -1,12 +1,12 @@
-<div id="<%= dom_id post %>">
-  <div>
-    <strong>Title:</strong>
-    <%= post.title %>
+<article id="<%= dom_id post %>">
+  <h1><%= post.title %></h1>
+  <div class="meta">
+    <%= avatar(post.author) if post.author %>
+    <%= byline(post) %>
   </div>
-
-  <div>
-    <strong>Body:</strong>
-    <%= post.body %>
+  <div><%= tag_chips(post.tags) %></div>
+  <%= toc(post.rendered.toc) %>
+  <div class="body">
+    <%= post.rendered.html.html_safe %>
   </div>
-
-</div>
+</article>

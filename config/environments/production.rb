@@ -63,8 +63,10 @@ Rails.application.configure do
   # Don't log any deprecations.
   config.active_support.report_deprecations = false
 
-  # Replace the default file-based cache store with a more robust alternative.
-  config.cache_store = :null_store
+  # A file store, so cache reads and writes are real file I/O during requests
+  # (fragment caches and the sidebar). Every Ractor and every unicorn worker
+  # shares the same directory.
+  config.cache_store = :file_store, Rails.root.join("tmp", "cache", "store").to_s
 
   # Replace the default in-process and non-durable queuing backend for Active Job.
   config.active_job.queue_adapter = :inline

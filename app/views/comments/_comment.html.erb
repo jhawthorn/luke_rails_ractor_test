@@ -1,6 +1,7 @@
 <div id="<%= dom_id comment %>">
   <p>
     <strong><%= comment.author %></strong>
+    <% if comment.rating %><span title="<%= comment.rating %> of 5"><%= "★" * comment.rating %></span><% end %>
     <small><%= time_ago_in_words(comment.created_at) %> ago</small>
   </p>
   <%# Not simple_format: its sanitizer uses class variables that aren't Ractor-safe yet. %>

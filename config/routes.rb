@@ -1,18 +1,22 @@
 Rails.application.routes.draw do
+  root "home#index"
+
   resources :posts do
     resources :comments, only: %i[ create destroy ]
   end
-  # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
+  resources :tags, only: %i[ index show ]
+  resources :authors, only: %i[ index show ]
+  get "search" => "search#index"
+  get "stats" => "stats#index"
+  get "feed" => "feeds#show", defaults: { format: :atom }, as: :feed
+  get "pages/:id" => "pages#show", as: :page
+
+  namespace :api do
+    resources :posts, only: %i[ index show ]
+    get "stats" => "stats#show"
+  end
 
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
   # Can be used by load balancers and uptime monitors to verify that the app is live.
   get "up" => "rails/health#show", as: :rails_health_check
-
-  # Render dynamic PWA files from app/views/pwa/* (remember to link manifest in application.html.erb)
-  # get "manifest" => "rails/pwa#manifest", as: :pwa_manifest
-  # get "service-worker" => "rails/pwa#service_worker", as: :pwa_service_worker
-  # get "offline" => "rails/pwa#offline", as: :pwa_offline
-
-  # Defines the root path route ("/")
-  root "posts#index"
 end

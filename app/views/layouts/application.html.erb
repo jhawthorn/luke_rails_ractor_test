@@ -1,31 +1,85 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
-    <title><%= content_for(:title) || "Rails Ractor Test" %></title>
+    <title><%= [ content_for(:title), "Ractor Blog" ].compact.join(" · ") %></title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="application-name" content="Rails Ractor Test">
+    <meta name="application-name" content="Ractor Blog">
     <meta name="mobile-web-app-capable" content="yes">
+    <meta name="description" content="<%= content_for(:description) || "Notes on parallel Ruby" %>">
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
+    <%= auto_discovery_link_tag :atom, feed_url %>
 
     <%= yield :head %>
 
-    <%# Enable PWA manifest for installable apps (make sure to enable in config/routes.rb too!) %>
-    <%#= tag.link rel: "manifest", href: pwa_manifest_path(format: :json) %>
-
     <%# Propshaft isn't Ractor-safe yet, so styles are inline and there is no JS. %>
     <style>
-      body { font-family: system-ui, sans-serif; max-width: 42rem; margin: 2rem auto; padding: 0 1rem; line-height: 1.5; }
-      a { color: #2563eb; }
-      input[type=text], textarea { width: 100%; padding: .4rem; box-sizing: border-box; }
-      input[type=submit] { padding: .4rem 1rem; }
+      :root { --fg: #1f2328; --muted: #656d76; --line: #d0d7de; --accent: #2563eb; --soft: #f6f8fa; }
+      body { font-family: system-ui, sans-serif; color: var(--fg); margin: 0; line-height: 1.55; }
+      a { color: var(--accent); text-decoration: none; } a:hover { text-decoration: underline; }
+      header.site { border-bottom: 1px solid var(--line); padding: .75rem 1rem; display: flex; gap: 1rem; align-items: center; flex-wrap: wrap; }
+      header.site .brand { font-weight: 700; font-size: 1.15rem; color: var(--fg); }
+      header.site nav a { margin-right: .8rem; } header.site nav a.active { font-weight: 600; color: var(--fg); }
+      header.site form { margin-left: auto; }
+      .wrap { display: grid; grid-template-columns: minmax(0, 1fr) 17rem; gap: 2rem; max-width: 64rem; margin: 1.5rem auto; padding: 0 1rem; }
+      @media (max-width: 50rem) { .wrap { grid-template-columns: 1fr; } }
+      aside section { margin-bottom: 1.5rem; } aside h4 { margin: 0 0 .4rem; font-size: .8rem; text-transform: uppercase; color: var(--muted); }
+      aside ul { list-style: none; padding: 0; margin: 0; font-size: .92rem; }
+      .chip { display: inline-block; background: var(--soft); border: 1px solid var(--line); border-radius: 999px; padding: 0 .55rem; font-size: .8rem; margin: 0 .2rem .3rem 0; }
+      .muted, .meta { color: var(--muted); font-size: .9rem; }
+      .card { border-bottom: 1px solid var(--line); padding: 1rem 0; } .card h2 { margin: 0 0 .25rem; font-size: 1.25rem; }
+      .featured { background: var(--soft); border: 1px solid var(--line); border-radius: 8px; padding: .75rem 1rem; margin-bottom: 1rem; }
+      .avatar { display: inline-block; border-radius: 50%; color: white; text-align: center; font-size: .75rem; font-weight: 700; vertical-align: middle; }
+      pre.code { background: #0d1117; color: #e6edf3; padding: .8rem 1rem; border-radius: 6px; overflow-x: auto; font-size: .85rem; }
+      pre.code .k { color: #ff7b72; } pre.code .s { color: #a5d6ff; } pre.code .n { color: #79c0ff; } pre.code .c { color: #8b949e; font-style: italic; }
+      pre.code .t { color: #ffa657; } pre.code .v { color: #ffa657; } pre.code .y { color: #7ee787; } pre.code .f { color: #d2a8ff; } pre.code .r { color: #a5d6ff; } pre.code .o { color: #ff7b72; }
+      table { border-collapse: collapse; margin: 1rem 0; } th, td { border: 1px solid var(--line); padding: .3rem .6rem; }
+      blockquote { border-left: 4px solid var(--line); margin: 1rem 0; padding: 0 1rem; color: var(--muted); }
+      nav.toc { background: var(--soft); border-radius: 6px; padding: .5rem 1rem; font-size: .9rem; } nav.toc .toc-3 { margin-left: 1rem; }
+      .pagination { display: flex; gap: .4rem; margin: 1.5rem 0; } .pagination .current { font-weight: 700; }
+      .bar { position: relative; background: var(--soft); height: 1.3rem; margin: .15rem 0; border-radius: 3px; }
+      .bar .fill { position: absolute; inset: 0 auto 0 0; background: #bfdbfe; border-radius: 3px; } .bar .value { position: relative; padding-left: .4rem; font-size: .8rem; }
+      .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr)); gap: 1rem; }
+      .stat { background: var(--soft); border-radius: 6px; padding: .6rem .8rem; } .stat strong { display: block; font-size: 1.4rem; }
+      mark { background: #fef08a; }
+      input[type=text], input[type=search], textarea, select { padding: .4rem; box-sizing: border-box; }
+      textarea, .comment-form input[type=text] { width: 100%; }
+      input[type=submit], button { padding: .4rem 1rem; }
       #notice { color: #166534; }
+      footer.site { border-top: 1px solid var(--line); padding: 1rem; text-align: center; color: var(--muted); font-size: .85rem; }
     </style>
   </head>
 
   <body>
-    <p><a href="/">My Blog</a></p>
-    <%= yield %>
+    <header class="site">
+      <%= link_to "Ractor Blog", root_path, class: "brand" %>
+      <nav>
+        <%= nav_link "Posts", posts_path %>
+        <%= nav_link "Tags", tags_path %>
+        <%= nav_link "Authors", authors_path %>
+        <%= nav_link "Stats", stats_path %>
+        <%= nav_link "About", page_path("about") %>
+      </nav>
+      <%= form_with url: search_path, method: :get, local: true do |f| %>
+        <%= f.search_field :q, value: params[:q], placeholder: "Search posts" %>
+      <% end %>
+    </header>
+
+    <div class="wrap">
+      <main>
+        <% if notice %><p id="notice"><%= notice %></p><% end %>
+        <%= yield %>
+      </main>
+      <%= render "shared/sidebar", sidebar: sidebar %>
+    </div>
+
+    <footer class="site">
+      Served by <%= Rails.application.config.x.server %> ·
+      <%= link_to "Colophon", page_path("colophon") %> ·
+      <%= link_to "Atom feed", feed_path %> ·
+      <%= link_to "CSV", posts_path(format: :csv) %> ·
+      <%= link_to "JSON", api_posts_path %>
+    </footer>
   </body>
 </html>
