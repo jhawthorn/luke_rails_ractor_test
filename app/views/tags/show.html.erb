@@ -1,0 +1,16 @@
+<% content_for :title, "##{@tag.name}" %>
+<h1>Posts tagged <em><%= @tag.name %></em></h1>
+
+<% if @co_tags.any? %>
+  <p class="muted">Often together with:
+    <% @co_tags.each do |name, slug, n| %>
+      <%= link_to "#{name} (#{n})", tag_path(slug), class: "chip" %>
+    <% end %>
+  </p>
+<% end %>
+
+<% @posts.each do |post| %>
+  <%= render "posts/card", post: post %>
+<% end %>
+
+<%= render "shared/pagination", pagination: @pagination %>

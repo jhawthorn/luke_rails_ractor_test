@@ -1,0 +1,30 @@
+<% content_for :title, @author.name %>
+<h1><%= avatar(@author, size: 48) %> <%= @author.name %></h1>
+<p><%= @author.bio %></p>
+<p class="muted">@<%= @author.handle %> · <%= mail_to @author.email %> ·
+  joined <%= l(@author.joined_on, format: :long) if @author.joined_on %></p>
+
+<section class="grid">
+  <div class="stat"><strong><%= @summary[:posts] %></strong> posts</div>
+  <div class="stat"><strong><%= number_with_delimiter(@summary[:words]) %></strong> words</div>
+  <div class="stat"><strong><%= distance_of_time_in_words(0, @summary[:reading_minutes].minutes) %></strong> of reading</div>
+  <div class="stat"><strong><%= @summary[:reading_ease] %></strong> average reading ease</div>
+  <div class="stat"><strong><%= number_with_delimiter(@summary[:comments]) %></strong> comments received</div>
+</section>
+
+<h3>Favourite words</h3>
+<p><%= safe_join(@top_terms.map { |w, n| tag.span("#{w} ×#{n}", class: "chip") }, " ") %></p>
+
+<h3>Favourite tags</h3>
+<p><%= safe_join(@tags.map { |name, n| link_to("#{name} (#{n})", tag_path(name), class: "chip") }, " ") %></p>
+
+<h3>Activity</h3>
+<% max = @activity.map(&:last).max %>
+<% @activity.each do |month, n| %>
+  <%= bar(n, max, label: "#{month}: #{pluralize(n, "post")}") %>
+<% end %>
+
+<h2>Latest posts</h2>
+<% @posts.each do |post| %>
+  <%= render "posts/card", post: post %>
+<% end %>

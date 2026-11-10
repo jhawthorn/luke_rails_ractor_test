@@ -1,0 +1,68 @@
+<% content_for :title, "Stats" %>
+<h1>Stats</h1>
+
+<h3>Post length</h3>
+<section class="grid">
+  <% @stats.percentiles.each do |name, value| %>
+    <div class="stat"><strong><%= number_with_delimiter(value) %></strong> words (<%= name %>)</div>
+  <% end %>
+</section>
+
+<% histogram = @stats.histogram %>
+<% max = histogram.values.max %>
+<% histogram.each do |bucket, n| %>
+  <%= bar(n, max, label: "#{bucket}–#{bucket + 99} words: #{n}") %>
+<% end %>
+
+<h3>By month</h3>
+<table>
+  <thead><tr><th>Month</th><th>Posts</th><th>Words</th><th>Comments</th></tr></thead>
+  <tbody>
+    <% @stats.monthly.each do |month, row| %>
+      <tr><td><%= month %></td><td><%= row[:posts] %></td>
+        <td style="text-align: right"><%= number_with_delimiter(row[:words]) %></td>
+        <td style="text-align: right"><%= number_with_delimiter(row[:comments]) %></td></tr>
+    <% end %>
+  </tbody>
+</table>
+
+<% ratings = @stats.ratings %>
+<h3>Ratings</h3>
+<p><%= ratings.average %> <%= ratings.stars %> average over <%= pluralize(number_with_delimiter(ratings.count), "rating") %></p>
+<% rmax = ratings.distribution.values.max %>
+<% ratings.distribution.each do |stars, n| %>
+  <%= bar(n, rmax, label: "#{stars}★ #{number_with_delimiter(n)} (#{number_to_percentage(n * 100.0 / [ratings.count, 1].max, precision: 1)})") %>
+<% end %>
+
+<h3>Views in the last 24 hours</h3>
+<% views = @stats.views_by_hour %>
+<% vmax = views.map(&:last).max %>
+<% views.each do |at, n| %>
+  <%= bar(n, vmax, label: "#{at.strftime("%H:00")} #{number_with_delimiter(n)}") %>
+<% end %>
+
+<div class="grid">
+  <div>
+    <h3>Most viewed</h3>
+    <ol>
+      <% @stats.most_viewed.each do |id, title, views| %>
+        <li><%= link_to title.truncate(45), post_path(id) %> <span class="muted"><%= number_with_delimiter(views) %></span></li>
+      <% end %>
+    </ol>
+  </div>
+  <div>
+    <h3>Busiest commenters</h3>
+    <ol>
+      <% @stats.busiest_commenters.each do |author, n| %>
+        <li><%= author %> <span class="muted"><%= n %></span></li>
+      <% end %>
+    </ol>
+  </div>
+</div>
+
+<h3>Storage</h3>
+<ul>
+  <% @stats.storage.each do |name, size| %>
+    <li><code><%= name %></code> <%= number_to_human_size(size) %></li>
+  <% end %>
+</ul>

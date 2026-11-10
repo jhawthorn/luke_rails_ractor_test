@@ -1,0 +1,48 @@
+<aside>
+  <section>
+    <h4>Totals</h4>
+    <ul>
+      <li><%= number_with_delimiter(sidebar.totals[:posts]) %> posts</li>
+      <li><%= number_with_delimiter(sidebar.totals[:comments]) %> comments</li>
+      <li><%= number_to_human(sidebar.totals[:words]) %> words</li>
+      <li><%= number_with_delimiter(sidebar.totals[:views]) %> page views</li>
+    </ul>
+  </section>
+
+  <section>
+    <h4>Tags</h4>
+    <% max = sidebar.tags.map { it[:count] }.max.to_f %>
+    <% sidebar.tags.each do |t| %>
+      <%= link_to t[:name], tag_path(t[:slug]), class: "chip", style: "font-size: #{(0.75 + 0.4 * t[:count] / max).round(2)}rem", title: pluralize(t[:count], "post") %>
+    <% end %>
+  </section>
+
+  <section>
+    <h4>Top authors</h4>
+    <ul>
+      <% sidebar.authors.each do |a| %>
+        <li><%= link_to a[:name], author_path(a[:handle]) %> <span class="muted"><%= number_to_human(a[:words], units: { thousand: "k" }, format: "%n%u") %> words</span></li>
+      <% end %>
+    </ul>
+  </section>
+
+  <section>
+    <h4>Archive</h4>
+    <ul>
+      <% sidebar.archive.each do |month, count| %>
+        <li><%= l(month, format: "%B %Y") %> <span class="muted">(<%= count %>)</span></li>
+      <% end %>
+    </ul>
+  </section>
+
+  <section>
+    <h4>Recent comments</h4>
+    <ul>
+      <% sidebar.recent_comments.each do |c| %>
+        <li><strong><%= c[:author] %></strong> on <%= link_to "post #{c[:post_id]}", post_path(c[:post_id]) %>:
+          <span class="muted"><%= c[:body] %></span></li>
+      <% end %>
+    </ul>
+  </section>
+  <p class="muted">Sidebar built <%= time_ago_in_words(sidebar.built_at, include_seconds: true) %> ago.</p>
+</aside>

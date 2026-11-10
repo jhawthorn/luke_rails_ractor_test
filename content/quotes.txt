@@ -1,0 +1,11 @@
+# One quote per line: text -- author
+Premature optimization is the root of all evil. -- Donald Knuth
+Make it work, make it right, make it fast. -- Kent Beck
+Measure. Don't tune for speed until you've measured. -- Rob Pike
+Simple things should be simple, complex things should be possible. -- Alan Kay
+Shared mutable state is the root of all concurrency bugs. -- Every concurrency talk ever
+Do not communicate by sharing memory; share memory by communicating. -- Go proverb
+Ruby is designed to make programmers happy. -- Yukihiro Matsumoto
+The fastest code is the code that never runs. -- Folklore
+There are only two hard things in Computer Science: cache invalidation and naming things. -- Phil Karlton
+A benchmark without a profile is just a number. -- Anonymous

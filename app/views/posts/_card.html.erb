@@ -1,0 +1,12 @@
+<% cache [ post, "card/v1" ] do %>
+  <article class="card" id="<%= dom_id post %>">
+    <h2><%= link_to post.title, post %></h2>
+    <div class="meta">
+      <%= avatar(post.author, size: 20) if post.author %>
+      <%= byline(post) %>
+      · <%= pluralize(post.comments_count, "comment") %>
+    </div>
+    <p><%= post.excerpt %></p>
+    <div><%= tag_chips(post.tags) %></div>
+  </article>
+<% end %>

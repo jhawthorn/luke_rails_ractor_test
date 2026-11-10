@@ -1,0 +1,8 @@
+<% content_for :title, "Tags" %>
+<h1>Tags</h1>
+<% @tags.each do |tag, count| %>
+  <div>
+    <%= link_to tag.name, tag_path(tag) %>
+    <%= bar(count, @max, label: pluralize(count, "post")) %>
+  </div>
+<% end %>

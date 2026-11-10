@@ -1,0 +1,24 @@
+<% content_for :title, "Home" %>
+
+<% if @quote %>
+  <blockquote><p><%= @quote.text %></p><p>— <%= @quote.who %></p></blockquote>
+<% end %>
+
+<% @featured.each do |post| %>
+  <div class="featured">
+    <strong>Featured:</strong> <%= link_to post.title, post %>
+    <div class="muted"><%= post.settings[:summary] %></div>
+  </div>
+<% end %>
+
+<% if @series.any? %>
+  <p class="muted">Series:
+    <%= safe_join(@series.map { |name, n| "#{name} (#{n})" }, ", ") %></p>
+<% end %>
+
+<h1>Latest posts</h1>
+<% @posts.each do |post| %>
+  <%= render "posts/card", post: post %>
+<% end %>
+
+<p><%= link_to "All posts →", posts_path(page: 2) %></p>

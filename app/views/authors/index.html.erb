@@ -1,0 +1,19 @@
+<% content_for :title, "Authors" %>
+<h1>Authors</h1>
+<table>
+  <thead><tr><th></th><th>Author</th><th>Posts</th><th>Words</th><th>Comments</th><th>Last post</th><th>Joined</th></tr></thead>
+  <tbody>
+    <% @authors.each do |author| %>
+      <% t = @totals.fetch(author.id, {}) %>
+      <tr>
+        <td><%= avatar(author, size: 24) %></td>
+        <td><%= link_to author.name, author_path(author) %> <span class="muted">@<%= author.handle %></span></td>
+        <td style="text-align: right"><%= t[:posts].to_i %></td>
+        <td style="text-align: right"><%= number_with_delimiter(t[:words].to_i) %></td>
+        <td style="text-align: right"><%= number_with_delimiter(t[:comments].to_i) %></td>
+        <td><%= t[:last] ? time_ago_in_words(t[:last]) + " ago" : "–" %></td>
+        <td><%= l(author.joined_on, format: :long) if author.joined_on %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>

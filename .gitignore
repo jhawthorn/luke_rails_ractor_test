@@ -34,3 +34,12 @@
 /config/*.key
 
 /profile.json.gz
+
+# Profiling / benchmark output
+/profile_run*.json.gz
+/profile_run*.json.syms.json
+/cougar_profile.json.gz
+/p.json.gz
+/oha_run*
+/profile_analysis/*.json
+__pycache__/

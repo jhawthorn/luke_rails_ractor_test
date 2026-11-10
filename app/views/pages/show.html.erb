@@ -1,0 +1,6 @@
+<% content_for :title, @meta[:title] %>
+<%= toc(@page.toc) %>
+<%= @page.html.html_safe %>
+<p class="muted">
+  <%= "By #{@meta[:author]} · " if @meta[:author] %>Last updated <%= time_ago_in_words(@updated_at) %> ago.
+</p>

@@ -1,0 +1,16 @@
+<% if pagination.pages > 1 %>
+  <nav class="pagination">
+    <%= link_to "← Newer", url_for(request.query_parameters.merge(page: pagination.previous)) if pagination.previous %>
+    <% pagination.window.each do |n| %>
+      <% if n.nil? %>
+        <span>…</span>
+      <% elsif n == pagination.page %>
+        <span class="current"><%= n %></span>
+      <% else %>
+        <%= link_to n, url_for(request.query_parameters.merge(page: n)) %>
+      <% end %>
+    <% end %>
+    <%= link_to "Older →", url_for(request.query_parameters.merge(page: pagination.next)) if pagination.next %>
+  </nav>
+  <p class="muted">Page <%= pagination.page %> of <%= pagination.pages %> · <%= pluralize(pagination.total, "post") %></p>
+<% end %>

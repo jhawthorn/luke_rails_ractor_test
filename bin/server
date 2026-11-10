@@ -1,0 +1,108 @@
+#!/usr/bin/env ruby
+# Boots this app under the server named by RAILS_SERVER, so the two can be
+# benchmarked against each other:
+#
+#   RAILS_SERVER=cougar        bin/server   # N Ractors in one process (default)
+#   RAILS_SERVER=unicorn       bin/server   # N forked worker processes
+#   RAILS_SERVER=unicorn-nginx bin/server   # nginx on PORT, unicorn behind it
+#                                           # on a Unix socket
+#
+#   WORKERS=10 PORT=3030 RAILS_SERVER=unicorn bin/server
+#
+# Plain unicorn closes the connection after every response, so a load
+# generator opens one TCP connection per request and runs out of local ports
+# within seconds (TIME_WAIT). unicorn-nginx avoids that: clients keep their
+# keep-alive connections to nginx (NGINX_WORKERS processes, default 2), and
+# nginx reaches unicorn over the socket, which uses no ports.
+#
+# Extra arguments are passed through to the underlying server. Each server has
+# its own bundle (Gemfile / Gemfile.unicorn), identical but for the server gem.
+server = ENV.fetch("RAILS_SERVER", "cougar")
+port = ENV.fetch("PORT", "3030")
+workers = ENV.fetch("WORKERS", "10")
+bind = ENV.fetch("BIND", "localhost")
+
+ENV["RAILS_ENV"] ||= "production"
+ENV["SECRET_KEY_BASE_DUMMY"] ||= "1"
+ENV["RAILS_SERVER"] = server
+
+ruby_opts = ENV.fetch("RUBY_OPTS", "--yjit").split
+binary = ["ruby"]
+if ENV["SAMPLY"] == "1"
+  binary.unshift *["samply", "record"]
+elsif ENV["SAMPLY"]
+  binary.unshift *(ENV["SAMPLY"].split(" "))
+end
+
+case server
+when "cougar"
+  # Ractor count is RUBY_MAX_CPU-bound; keep the VM's pool in step with -w.
+  ENV["RUBY_MAX_CPU"] ||= workers
+  ENV["RAILS_LOG_TO_STDOUT"] ||= "true"
+  exec *binary, *ruby_opts, "-r", "bundler/setup", "-S", "cougar",
+       "-b", bind, "-p", port, "-w", workers, *ARGV
+when "unicorn"
+  ENV["BUNDLE_GEMFILE"] = File.expand_path("../Gemfile.unicorn", __dir__)
+  ENV["WEB_CONCURRENCY"] = workers
+  ENV["PORT"] = port
+  ENV["BIND"] = bind
+  exec *binary, *ruby_opts, "-r", "bundler/setup", "-S", "unicorn",
+       "-c", File.expand_path("../config/unicorn.rb", __dir__), *ARGV
+when "unicorn-nginx"
+  require "erb"
+  require "fileutils"
+  require "socket"
+
+  root = File.expand_path("..", __dir__)
+  dir = File.join(root, "tmp", "nginx-#{port}")
+  socket = File.join(root, "tmp", "sockets", "unicorn-#{port}.sock")
+  FileUtils.mkdir_p([dir, File.dirname(socket)])
+
+  nginx_workers = ENV.fetch("NGINX_WORKERS", "2")
+  # A little longer than unicorn's own timeout, so unicorn kills a stuck
+  # worker before nginx gives up on it.
+  read_timeout = Integer(ENV.fetch("UNICORN_TIMEOUT", 30)) + 5
+  conf = File.join(dir, "nginx.conf")
+  File.write(conf, ERB.new(File.read(File.join(root, "config", "nginx.conf.erb")))
+                      .result_with_hash(dir:, socket:, bind:, port:, nginx_workers:, read_timeout:))
+
+  ENV["BUNDLE_GEMFILE"] = File.join(root, "Gemfile.unicorn")
+  ENV["WEB_CONCURRENCY"] = workers
+  ENV["UNICORN_SOCKET"] = socket
+  pids = {}
+  pids[:unicorn] = spawn(*binary, *ruby_opts, "-r", "bundler/setup", "-S", "unicorn",
+                         "-c", File.join(root, "config", "unicorn.rb"), *ARGV)
+
+  # Pass INT/TERM/QUIT on to both, so the usual ways of stopping a server
+  # stop both halves (both treat INT/TERM as fast and QUIT as graceful).
+  %w[INT TERM QUIT].each do |sig|
+    trap(sig) { pids.each_value { |pid| Process.kill(sig, pid) rescue nil } }
+  end
+
+  # Start nginx only once unicorn accepts connections, so that the public
+  # port listening means the server is ready, as it does for the others.
+  loop do
+    UNIXSocket.new(socket).close
+    break
+  rescue Errno::ENOENT, Errno::ECONNREFUSED
+    if Process.wait(pids[:unicorn], Process::WNOHANG)
+      abort "bin/server: unicorn exited before listening on #{socket}"
+    end
+    sleep 0.1
+  end
+  pids[:nginx] = spawn("nginx", "-p", dir, "-c", conf)
+  # nginx itself only logs warnings and errors, so say that it is up.
+  $stderr.puts "bin/server: nginx (#{nginx_workers} workers) on #{bind}:#{port} -> unicorn at #{socket}"
+
+  # When either one exits, stop the other.
+  pid, status = Process.wait2
+  name = pids.key(pid)
+  pids.delete(name)
+  pids.each_value do |other|
+    Process.kill("TERM", other) rescue nil
+    Process.wait(other) rescue nil
+  end
+  exit(status.exitstatus || 1)
+else
+  abort "bin/server: unknown RAILS_SERVER=#{server.inspect} (expected cougar, unicorn or unicorn-nginx)"
+end

@@ -1,0 +1,14 @@
+# Server: unicorn (one request per forked worker process). Used when
+# RAILS_SERVER=unicorn. Shared deps live in Gemfile.common, so this target
+# differs from the cougar target only in the server gem.
+#
+#   BUNDLE_GEMFILE=Gemfile.unicorn bundle install
+#   RAILS_SERVER=unicorn bin/server
+eval_gemfile "Gemfile.common"
+
+# Forking web server. Not the released 6.1.0 gem: that one still depends on
+# kgio, whose C extension SIGBUSes on Ruby 3.4+ inside kgio_tryaccept. Master
+# dropped kgio and learned Rack 3 response headers; the ruby-3-4 branch of this
+# mirror is master plus the pre-generated unicorn_http.c (so no ragel needed)
+# and lib/unicorn/version.rb.
+gem "unicorn", github: "k0kubun/unicorn", branch: "ruby-3-4"
