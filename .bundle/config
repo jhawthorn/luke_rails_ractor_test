@@ -1,0 +1,2 @@
+---
+BUNDLE_BUILD__SQLITE3: "--with-sqlite-cflags=-DSQLITE_DEFAULT_MEMSTATUS=0"
